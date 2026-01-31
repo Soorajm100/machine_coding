@@ -215,3 +215,151 @@ useEffect(() => {
 5. Avoid stale closure bugs by **never referencing state directly inside async callbacks**
 
 ---
+
+## 🧩 Problem 3: Debounced Search with Mock API
+
+### Overview
+Search input that delays API calls until the user stops typing.  
+Prevents unnecessary network requests.
+
+---
+
+## Core Concepts
+
+- Controlled input (`useState`)
+- Debounce using `setTimeout`
+- Cleanup with `clearTimeout`
+- `useEffect` dependency control
+- Async API calls (Axios)
+- Next.js API routes as mock backend
+- Array filtering logic
+- GET request semantics
+
+---
+
+## State Setup
+
+```jsx
+const [searchText, setSearchText] = useState("");
+const [results, setResults] = useState([]);
+const [loading, setLoading] = useState(false);
+````
+
+---
+
+## Debounce Logic (Essential)
+
+```jsx
+useEffect(() => {
+  if (!searchText) return;
+
+  const timer = setTimeout(async () => {
+    setLoading(true);
+    const res = await axios.get("/api/search", {
+      params: { query: searchText }
+    });
+    setResults(res.data.results);
+    setLoading(false);
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [searchText]);
+```
+
+---
+
+## Why This Works
+
+* `setTimeout` runs once
+* Cleanup cancels previous timeout
+* Only latest input triggers API
+* No stale state usage
+
+---
+
+## setTimeout vs setInterval
+
+| setTimeout           | setInterval        |
+| -------------------- | ------------------ |
+| Runs once            | Runs repeatedly    |
+| Best for debounce    | Best for timers    |
+| Cleanup cancels call | Cleanup stops loop |
+
+---
+
+## Axios GET Pattern
+
+```ts
+const fetchResults = async (query: string) => {
+  const res = await axios.get("/api/search", {
+    params: { query }
+  });
+  return res.data.results;
+};
+```
+
+---
+
+## Mock API Filter Logic
+
+```ts
+const filtered = data.filter(item =>
+  item.toLowerCase().includes(query.toLowerCase())
+);
+```
+
+> `filter` callback must return a boolean.
+
+---
+
+## Why GET Request
+
+* Read-only operation
+* Idempotent
+* Cache-friendly
+* REST standard for search
+
+---
+
+## Common Pitfalls
+
+* Calling API inside `onChange`
+* Missing `clearTimeout`
+* `filter` without return
+* Using POST for search
+
+---
+
+## Quick Revision Points
+
+1. Debounce = `setTimeout + cleanup`
+2. Dependency array controls debounce
+3. Use GET for search
+4. `filter` always returns array
+5. Axios `params` preferred
+
+---
+
+## Interview One-Liner
+
+> “Debounced search implemented using `setTimeout` inside `useEffect` with cleanup to avoid unnecessary API calls.”
+
+```
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
