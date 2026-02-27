@@ -627,9 +627,173 @@ Not the game — but:
 
 
 
+# 🎬 Movie Filter & Sorting using REST API
 
+## 📌 Overview
 
+This project demonstrates how to fetch data from a public REST API, filter it based on specific criteria, and sort the results using custom logic in Python.
 
+The application retrieves TV show data from the **TVMaze API**, filters shows by genre, and returns the highest-rated show based on defined sorting rules.
+
+---
+
+## 🚀 Features
+
+* Fetch data from REST API
+* Filter shows by genre
+* Handle missing/null values safely
+* Sort results based on:
+
+  * IMDb rating (descending)
+  * Show name (ascending, for tie-breaking)
+* Return top-rated show
+
+---
+
+## 🛠️ Tech Stack
+
+* Python 3
+* `requests` library
+
+---
+
+## 📂 API Used
+
+* https://api.tvmaze.com/shows?page=1
+
+---
+
+## 🧠 Problem Statement
+
+Given a genre:
+
+1. Fetch TV shows from an API
+2. Filter shows that belong to the given genre
+3. Sort them by:
+
+   * Highest rating first
+   * If ratings are equal → sort lexicographically by name
+4. Return the top result
+
+---
+
+## 🧾 Code Explanation
+
+### 1. Filtering Function
+
+```python
+def filter_movies(data , genre : str):
+    res = []
+    for ele in data:
+        if genre in ele["genres"]:
+            res.append(ele)
+    return res
+```
+
+* Iterates through API response
+* Selects only those shows matching the given genre
+
+---
+
+### 2. Main Function
+
+```python
+def get_api(genre : str):
+    res = []
+    for i in range(1,2):
+        response = requests.get(f"https://api.tvmaze.com/shows?page={i}")
+        data = response.json()
+        res.extend(filter_movies(data , genre))
+```
+
+* Calls API
+* Aggregates filtered results
+
+---
+
+### 3. Sorting Logic
+
+```python
+res.sort(
+    key=lambda x: (
+        -(x.get('rating', {}).get('average') or 0),
+        str(x.get('name') or '')
+    )
+)
+```
+
+### 🔍 Explanation:
+
+* `-(rating)` → ensures descending order
+* `name` → ensures ascending lexicographical order for ties
+* Handles missing values safely using `.get()`
+
+---
+
+### 4. Final Output
+
+```python
+return [res[0]['name'], res[0]['rating']['average']]
+```
+
+* Returns the highest-rated show after sorting
+
+---
+
+## ▶️ Example Output
+
+```bash
+['Show Name', 8.9]
+```
+
+---
+
+## ⚠️ Edge Cases Handled
+
+* Missing ratings → treated as `0`
+* Missing names → treated as empty string
+* Empty results (can be extended with checks)
+
+---
+
+## 📈 Possible Improvements
+
+* Handle multiple pages dynamically instead of fixed range
+* Add error handling for API failures
+* Use list comprehensions for cleaner filtering
+* Return top N results instead of just one
+* Add unit tests
+
+---
+
+## 💡 Key Learning
+
+* Practical use of `lambda` for custom sorting
+* Handling real-world API data
+* Writing clean and safe Python code under constraints
+
+---
+
+## 📬 Usage
+
+```python
+print(get_api("Comedy"))
+```
+
+---
+
+## 🏁 Conclusion
+
+This project simulates a real-world machine coding/API problem often asked in coding assessments, focusing on:
+
+* Data fetching
+* Filtering
+* Sorting logic
+* Edge case handling
+
+---
+
+⭐ If you found this useful, consider starring the repo!
 
 
 
